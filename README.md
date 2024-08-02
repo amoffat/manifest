@@ -13,6 +13,10 @@ defining the function's facade.
 Shout out to [@dstufft](https://github.com/dstufft) for gifting me the PyPI repo
 name [`manifest`](https://pypi.org/project/manifest/) 🙏
 
+```
+pip install manifest
+```
+
 # Examples
 
 ## Sentiment analysis
