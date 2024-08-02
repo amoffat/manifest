@@ -1,0 +1,10 @@
+.python-version
+.env
+__pycache__/
+*.py[cod]
+/.venv
+/dist
+/.coverage
+/docs/build
+TODO.md
+/demo.py
