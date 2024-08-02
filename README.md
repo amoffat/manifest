@@ -25,11 +25,11 @@ pip install manifest
 from manifest import ai
 
 @ai
-def is_pessimistic(text: str) -> bool:
-    """ Determines if the text is pessimistic"""
+def is_optimistic(text: str) -> bool:
+    """ Determines if the text is optimistic"""
     ...
 
-assert is_pessimistic("This is a silly tool and nobody will ever use it.")
+assert is_optimistic("This is amazing!")
 ```
 
 ## Translation
