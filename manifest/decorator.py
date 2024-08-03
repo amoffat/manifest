@@ -1,13 +1,15 @@
 import inspect
 import json
 from functools import wraps
+from io import BytesIO
 from typing import Any, Callable
 
 from manifest import initialize, parser, serde, tmpl
 from manifest.llm.base import LLM
 from manifest.types.service import Service
 from manifest.utils.args import get_args_dict
-from manifest.utils.types import extract_type_registry
+from manifest.utils.asset import get_asset_data
+from manifest.utils.types import extract_type_registry, is_asset
 
 # Lazily-initialized singleton LLM client. This must be lazy because we don't
 # know when the user will have initialized the client, either automatically or
@@ -68,14 +70,34 @@ def ai(*decorator_args, **decorator_kwargs) -> Callable:
                 kwargs=exec_kwargs,
             )
 
+            images: list[BytesIO] = []
+
             # Aggregate our arguments into a format that the LLM can understand
             args = []
             for arg_name, arg_value in call_args.items():
+
                 try:
                     arg_type = ants[arg_name]
                 except KeyError:
                     raise ValueError(
                         f"Function '{name}' is missing an annotation for '{arg_name}'"
+                    )
+
+                if is_asset(arg_type):
+                    images.append(get_asset_data(arg_value))
+
+                    args.append(
+                        {
+                            "name": arg_name,
+                            "value": "Uploaded image",
+                        }
+                    )
+                    continue
+
+                elif not isinstance(arg_value, arg_type):
+                    raise TypeError(
+                        f"Argument '{arg_name}' is of type {type(arg_value)}, "
+                        f"but should be of type {arg_type}"
                     )
 
                 # Collect the source code of the argument type, if it's not a
@@ -112,7 +134,11 @@ def ai(*decorator_args, **decorator_kwargs) -> Callable:
             prompt = call_tmpl.render(**tmpl_params)
             system_msg = system_tmpl.render()
 
-            resp = llm.call(prompt=prompt, system_msg=system_msg)
+            resp = llm.call(
+                prompt=prompt,
+                system_msg=system_msg,
+                images=images,
+            )
 
             data_spec = parser.parse_return_value(resp)
             ret_val = serde.deserialize(

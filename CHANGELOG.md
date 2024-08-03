@@ -1,3 +1,7 @@
+# 0.2.0 - 8/2/24
+
+- Support for `tuple` serde datatype
+
 # 0.1.2 - 8/2/24
 
 - Package metadata tweaks

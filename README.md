@@ -27,7 +27,6 @@ from manifest import ai
 @ai
 def is_optimistic(text: str) -> bool:
     """ Determines if the text is optimistic"""
-    ...
 
 assert is_optimistic("This is amazing!")
 ```
@@ -40,25 +39,24 @@ from manifest import ai
 @ai
 def translate(english_text: str, target_lang: str) -> str:
     """ Translates text from english into a target language """
-    ...
 
 assert translate("Hello", "fr") == "Bonjour"
 ```
 
 ## Image analysis
 
-You can pass in bytes to make use of a model's multimodal abilities. COMING SOON
+You can pass in a file to make use of a model's multimodal abilities. It
+supports `Path`, `io.BytesIO` and `io.BufferedReader`
 
 ```python
-import io
+from pathlib import Path
 from manifest import ai
 
 @ai
-def breed_of_dog(image: io.BytesIO) -> str:
-    """ Determines the breed of dog from a photo """
-    ...
+def breed_of_dog(image: Path) -> str:
+    """Determines the breed of dog from a photo"""
 
-image = open("/path/to/terrier.jpg", "r")
+image = Path("path/to/dog.jpg")
 print(breed_of_dog(image))
 ```
 
@@ -86,7 +84,6 @@ class Movie:
 def similar_movie(movie: str, before_year: int | None=None) -> Movie:
     """Discovers a similar movie, before a certain year, if the year is
     provided."""
-    ...
 
 like_inception = similar_movie("Inception")
 print(like_inception)
@@ -109,14 +106,23 @@ To get the most out the `@ai` decorator:
 
 # Limitations
 
+## REPL
+
+Manifest doesn't work from the REPL, due to it needing access to the source code
+of the functions it decorates.
+
+## Types
+
 You can only pass in and return the following types:
 
 - Dataclasses
 - `Enum` subclasses
 - primitives (str, int, bool, None, etc)
-- basic container types (list, dict)
+- basic container types (list, dict, tuple)
 - unions
 - Any combination of the above
+
+## Prompts
 
 The prompt templates are also a little fiddly sometimes. They can be improved.
 
