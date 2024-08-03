@@ -28,7 +28,7 @@ def parse_document(s: str) -> etree._Element:
     return root
 
 
-def find_and_parse_xml(s: str, root_tag="root") -> etree._Element:
+def find_and_parse_xml(s: str, root_tag="root") -> etree._Element | None:
     """For a given string, find the first XML document and parse it."""
     start_tag = f"<{root_tag}>"
     end_tag = f"</{root_tag}>"
@@ -36,8 +36,9 @@ def find_and_parse_xml(s: str, root_tag="root") -> etree._Element:
     start_index = s.find(start_tag)
     end_index = s.find(end_tag)
 
+    # Couldn't find the root tag
     if start_index == -1 or end_index == -1 or start_index > end_index:
-        raise ValueError("No valid XML document found: " + s)
+        return None
 
     xml_document = s[start_index : end_index + len(end_tag)]
 
@@ -68,6 +69,10 @@ def render_inner(node: etree._Element) -> str:
 
 def parse_return_value(s: str) -> str:
     root = find_and_parse_xml(s, root_tag="return-value")
-    json_str = render_inner(root)
-    data_spec = json.loads(json_str)
+    if root is not None:
+        json_str = render_inner(root)
+        data_spec = json.loads(json_str)
+    else:
+        data_spec = json.loads(s)
+
     return data_spec

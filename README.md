@@ -27,7 +27,6 @@ from manifest import ai
 @ai
 def is_optimistic(text: str) -> bool:
     """ Determines if the text is optimistic"""
-    ...
 
 assert is_optimistic("This is amazing!")
 ```
@@ -40,7 +39,6 @@ from manifest import ai
 @ai
 def translate(english_text: str, target_lang: str) -> str:
     """ Translates text from english into a target language """
-    ...
 
 assert translate("Hello", "fr") == "Bonjour"
 ```
@@ -86,7 +84,6 @@ class Movie:
 def similar_movie(movie: str, before_year: int | None=None) -> Movie:
     """Discovers a similar movie, before a certain year, if the year is
     provided."""
-    ...
 
 like_inception = similar_movie("Inception")
 print(like_inception)

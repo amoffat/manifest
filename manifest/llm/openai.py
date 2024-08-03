@@ -66,6 +66,8 @@ class OpenAILLM(LLM):
         completion = self.client.chat.completions.create(
             model=self.model,
             messages=messages,
+            # Somehow produces worse outcomes
+            # response_format={"type": "json_object"},
         )
 
         resp = completion.choices[0].message.content or ""
