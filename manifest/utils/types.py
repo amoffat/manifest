@@ -1,5 +1,7 @@
+import io
 from dataclasses import fields, is_dataclass
 from enum import Enum
+from pathlib import Path
 from types import UnionType
 from typing import Any, Type, get_args, get_origin
 
@@ -33,3 +35,11 @@ def extract_type_registry(
         extract_type_registry(type_registry, value_type)
 
     return type_registry
+
+
+def is_asset(arg_type: Type) -> bool:
+    """Check if a type is an uploadable asset"""
+    if issubclass(arg_type, (io.BytesIO, io.BufferedReader, Path)):
+        return True
+
+    return False

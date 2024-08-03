@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from io import BytesIO
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -9,7 +10,13 @@ class LLM(ABC):
     """The base class for all LLM clients."""
 
     @abstractmethod
-    def call(self, *, prompt: str, system_msg: str) -> str:
+    def call(
+        self,
+        *,
+        prompt: str,
+        system_msg: str,
+        images: list[BytesIO] | None = None,
+    ) -> str:
         """Run an LLM completion"""
         ...
 

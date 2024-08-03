@@ -47,18 +47,18 @@ assert translate("Hello", "fr") == "Bonjour"
 
 ## Image analysis
 
-You can pass in bytes to make use of a model's multimodal abilities. COMING SOON
+You can pass in a file to make use of a model's multimodal abilities. It
+supports `Path`, `io.BytesIO` and `io.BufferedReader`
 
 ```python
-import io
+from pathlib import Path
 from manifest import ai
 
 @ai
-def breed_of_dog(image: io.BytesIO) -> str:
-    """ Determines the breed of dog from a photo """
-    ...
+def breed_of_dog(image: Path) -> str:
+    """Determines the breed of dog from a photo"""
 
-image = open("/path/to/terrier.jpg", "rb")
+image = Path("path/to/dog.jpg")
 print(breed_of_dog(image))
 ```
 
