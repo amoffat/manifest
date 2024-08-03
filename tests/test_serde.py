@@ -19,6 +19,19 @@ def test_simple() -> None:
     assert actual == expected
 
 
+def test_tuple() -> None:
+    schema = serialize(tuple[int, str, float])
+    expected = (123, "hello", 3.14)
+
+    actual = deserialize(
+        schema=schema,
+        data=[123, "hello", 3.14],
+        registry={},
+    )
+
+    assert actual == expected
+
+
 def test_enum() -> None:
     class Shape(Enum):
         SPHERE = 1

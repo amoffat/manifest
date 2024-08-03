@@ -58,7 +58,7 @@ def breed_of_dog(image: io.BytesIO) -> str:
     """ Determines the breed of dog from a photo """
     ...
 
-image = open("/path/to/terrier.jpg", "r")
+image = open("/path/to/terrier.jpg", "rb")
 print(breed_of_dog(image))
 ```
 
@@ -109,14 +109,23 @@ To get the most out the `@ai` decorator:
 
 # Limitations
 
+## REPL
+
+Manifest doesn't work from the REPL, due to it needing access to the source code
+of the functions it decorates.
+
+## Types
+
 You can only pass in and return the following types:
 
 - Dataclasses
 - `Enum` subclasses
 - primitives (str, int, bool, None, etc)
-- basic container types (list, dict)
+- basic container types (list, dict, tuple)
 - unions
 - Any combination of the above
+
+## Prompts
 
 The prompt templates are also a little fiddly sometimes. They can be improved.
 

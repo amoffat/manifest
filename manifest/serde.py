@@ -51,6 +51,13 @@ def serialize(data_type: Type | UnionType) -> dict:
             "items": serialize(item_type),
         }
 
+    if get_origin(data_type) is tuple:
+        item_types = get_args(data_type)
+        return {
+            "type": "array",
+            "prefixItems": [serialize(t) for t in item_types],
+        }
+
     if get_origin(data_type) is dict:
         _, value_type = get_args(data_type)
         return {
@@ -82,8 +89,8 @@ def deserialize(
     """
     Deserialize a JSON-friendly data structure into a dataclass instance.
 
-    :param spec: The JSON-friendly data structure that describes the dataclass.
-    :param data: The JSON-friendly data structure to deserialize.
+    :param spec: The JSON-encodable data structure that describes the dataclass.
+    :param data: The JSON-encodable data structure to deserialize.
     :param registry: A dictionary mapping type names to the corresponding types.
 
     :return: An instance of the dataclass.
@@ -139,6 +146,19 @@ def deserialize(
 
     # list container type
     if type == "array":
+
+        # If items is a collection, we have a tuple
+        if "prefixItems" in schema:
+            return tuple(
+                deserialize(
+                    schema=schema["prefixItems"][i],
+                    data=d,
+                    registry=registry,
+                )
+                for i, d in enumerate(data)
+            )
+
+        # Otherwise, we have a normal list
         return [
             deserialize(
                 schema=schema["items"],
