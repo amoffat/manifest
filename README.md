@@ -6,9 +6,9 @@ man·i·fest [verb]
 : to make something happen by imagining it and consciously thinking that it will happen
 ```
 
-Want to easily use an LLM in your code without writing prompts or setting up an
+Want to use an LLM in your code without writing prompts or setting up an
 LLM client? Manifest makes it as easy as writing a function that describes what
-you want it to do.
+you want.
 
 # Examples
 
