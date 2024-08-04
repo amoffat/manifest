@@ -1,4 +1,4 @@
-# Manifest
+# Manifest ✨
 
 ```
 man·i·fest [verb]
@@ -6,20 +6,15 @@ man·i·fest [verb]
 : to make something happen by imagining it and consciously thinking that it will happen
 ```
 
-Manifest is an experiment in letting an LLM provide the return value for a
-function. It allows you to manifest powerful behaviors into existence merely by
-defining the function's facade.
-
-Shout out to [@dstufft](https://github.com/dstufft) for gifting me the PyPI repo
-name [`manifest`](https://pypi.org/project/manifest/) 🙏
-
-```
-pip install manifest
-```
+Want to easily use an LLM in your code without writing prompts or setting up an
+LLM client? Manifest makes it as easy as writing a function that describes what
+you want it to do.
 
 # Examples
 
 ## Sentiment analysis
+
+Classify some text as positive or not.
 
 ```python
 from manifest import ai
@@ -33,6 +28,8 @@ assert is_optimistic("This is amazing!")
 
 ## Translation
 
+Translate text from one language to another.
+
 ```python
 from manifest import ai
 
@@ -45,8 +42,7 @@ assert translate("Hello", "fr") == "Bonjour"
 
 ## Image analysis
 
-You can pass in a file to make use of a model's multimodal abilities. It
-supports `Path`, `io.BytesIO` and `io.BufferedReader`
+Analyze images by passing in a Path to a file.
 
 ```python
 from pathlib import Path
@@ -62,7 +58,7 @@ print(breed_of_dog(image))
 
 ## Complex objects
 
-Your function can use fairly complex data structures.
+For advanced uses, you can return complex data structures.
 
 ```python
 from dataclasses import dataclass
@@ -88,6 +84,12 @@ def similar_movie(movie: str, before_year: int | None=None) -> Movie:
 like_inception = similar_movie("Inception")
 print(like_inception)
 
+```
+
+# Installation
+
+```
+pip install manifest
 ```
 
 # How does it work?

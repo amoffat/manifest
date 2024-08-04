@@ -1,3 +1,7 @@
+# 0.2.1 - 8/4/24
+
+- Make startup error messages much nicer
+
 # 0.2.0 - 8/2/24
 
 - Support for `tuple` serde datatype

@@ -1,6 +1,8 @@
 import os
+import sys
 from typing import TYPE_CHECKING, Callable
 
+from manifest import constants, exc
 from manifest.types.service import Service
 
 if TYPE_CHECKING:
@@ -9,8 +11,70 @@ if TYPE_CHECKING:
 
 # Will be replaced during manual initialization
 def make_llm() -> "LLM":
-    make = env_init()
-    return make()
+    header = """manifest.py error:"""
+    manual_clause = """
+For advanced users, you may manually initialize the LLM client in your code by
+calling `manifest.init(client_maker)`, where `client_maker` is a function that
+returns an LLM client.
+""".strip()
+
+    valid_services = "\n".join([f"  - {s.value}" for s in Service])
+    valid_envs = "\n".join(
+        [f"  - {constants.ENV_KEY_NAMES[s]}" for s in Service if s != Service.AUTO]
+    )
+
+    try:
+        make = env_init()
+        return make()
+    except exc.UnknownLLMServiceError as e:
+        print(
+            f"""
+{header}
+
+Unknown LLM service: "{e.service}". Please specify one of the following
+services instead:
+
+{valid_services}
+
+Exiting.
+""",
+            file=sys.stderr,
+        )
+
+    except exc.NoApiKeyError as e:
+        print(
+            f"""
+{header}
+
+No api key found for {e.service}, try defining the environment variable
+{constants.ENV_KEY_NAMES[e.service]} in a .env file or in your environment, then
+re-running the program.
+
+{manual_clause}
+
+Exiting.
+""",
+            file=sys.stderr,
+        )
+
+    except exc.NoLLMFoundError:
+        print(
+            f"""
+{header}
+
+No LLM api keys found, try defining one of the following environment variables
+in a .env file or in your environment, then re-running the program:
+
+{valid_envs}
+
+{manual_clause}
+
+Exiting.
+""",
+            file=sys.stderr,
+        )
+
+    exit(1)
 
 
 def init(make: Callable[[], "LLM"]) -> None:
@@ -27,19 +91,26 @@ def env_init() -> Callable[[], "LLM"]:
 
     load_dotenv()
 
-    service = Service(os.getenv("LLM_SERVICE", "auto"))
+    # Do you have multiple LLM keys? Allow the user to choose
+    service_name = os.getenv("MANIFEST_SERVICE", "auto").lower()
+    try:
+        service = Service(service_name)
+    except ValueError:
+        raise exc.UnknownLLMServiceError(service_name)
+
+    key_names = constants.ENV_KEY_NAMES
 
     if service == Service.AUTO:
-        openai = os.getenv("OPENAI_API_KEY")
-        if openai:
+        openai_key = os.getenv(key_names[Service.OPENAI])
+        if openai_key:
             service = Service.OPENAI
         else:
-            raise ValueError("No LLM service discovered")
+            raise exc.NoLLMFoundError
 
     elif service == Service.OPENAI:
-        openai = os.getenv("OPENAI_API_KEY")
-        if not openai:
-            raise ValueError("OPENAI_API_KEY is required for OpenAI service")
+        openai_key = os.getenv(key_names[Service.OPENAI])
+        if not openai_key:
+            raise exc.NoApiKeyError(service)
 
     # Now we know what service we want to use
 
@@ -49,11 +120,11 @@ def env_init() -> Callable[[], "LLM"]:
             from manifest.llm.openai import OpenAILLM
 
             return OpenAILLM(
-                api_key=openai,
+                api_key=openai_key,
                 model="gpt-4o",
                 **kwargs,
             )
 
         return make_llm
 
-    raise ValueError(f"Unknown service: {service}")
+    raise exc.UnknownLLMServiceError(service_name)
