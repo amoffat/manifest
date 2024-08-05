@@ -8,3 +8,5 @@ __pycache__/
 /docs/build
 TODO.md
 /demo.py
+manifest/llm/mistral_models/*.tar
+manifest/llm/mistral_models/**/

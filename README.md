@@ -128,6 +128,10 @@ You can only pass in and return the following types:
 
 The prompt templates are also a little fiddly sometimes. They can be improved.
 
+## Mistral Setup
+
+You need to navigate here:
+
 # Initialization
 
 To make things super simple, manifest uses ambient LLM credentials, currently

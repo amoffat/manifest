@@ -117,7 +117,7 @@ def env_init() -> Callable[[], "LLM"]:
     if service == Service.OPENAI:
 
         def make_llm(**kwargs) -> "LLM":
-            from manifest.llm.openai import OpenAILLM
+            from manifest.llm.openai_service import OpenAILLM
 
             return OpenAILLM(
                 api_key=openai_key,

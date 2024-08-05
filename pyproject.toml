@@ -46,3 +46,8 @@ flake8 = "^7.1.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+markers = [
+    "garbage: mark tests as slow (select with '-m \"slow\"')",
+]
