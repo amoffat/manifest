@@ -134,18 +134,29 @@ def ai(*decorator_args, **decorator_kwargs) -> Callable:
             prompt = call_tmpl.render(**tmpl_params)
             system_msg = system_tmpl.render()
 
-            resp = llm.call(
-                prompt=prompt,
-                system_msg=system_msg,
-                images=images,
-            )
+            def complete():
+                resp = llm.call(
+                    prompt=prompt,
+                    system_msg=system_msg,
+                    images=images,
+                )
 
-            data_spec = parser.parse_return_value(resp)
-            ret_val = serde.deserialize(
-                schema=return_type_spec,
-                data=data_spec,
-                registry=type_registry,
-            )
+                data_spec = parser.parse_return_value(resp)
+                ret_val = serde.deserialize(
+                    schema=return_type_spec,
+                    data=data_spec,
+                    registry=type_registry,
+                )
+                return ret_val
+
+            tries = max(decorator_kwargs.get("retry", 2), 0) + 1
+            for _ in range(tries):
+                try:
+                    ret_val = complete()
+                except:  # noqa
+                    continue
+                else:
+                    break
 
             return ret_val
 

@@ -1,3 +1,7 @@
+# 0.3.0 - 8/5/24
+
+- Retry parameters on `@ai` decorator
+
 # 0.2.1 - 8/4/24
 
 - Make startup error messages much nicer
