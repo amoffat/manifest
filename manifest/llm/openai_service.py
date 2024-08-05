@@ -1,3 +1,4 @@
+# renamed due to name collision with the python package
 import base64
 from io import BytesIO
 from typing import TYPE_CHECKING
@@ -30,7 +31,6 @@ class OpenAILLM(LLM):
         system_msg: str,
         images: list[BytesIO] | None = None,
     ) -> str:
-
         user_message: "ChatCompletionMessageParam" = {
             "role": "user",
             "content": prompt,
