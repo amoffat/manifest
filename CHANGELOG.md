@@ -1,6 +1,7 @@
 # 0.3.0 - 8/5/24
 
 - Retry parameters on `@ai` decorator
+- Bugfixes with type checking
 
 # 0.2.1 - 8/4/24
 

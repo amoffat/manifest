@@ -39,7 +39,11 @@ def extract_type_registry(
 
 def is_asset(arg_type: Type) -> bool:
     """Check if a type is an uploadable asset"""
-    if issubclass(arg_type, (io.BytesIO, io.BufferedReader, Path)):
-        return True
+    try:
+        if issubclass(arg_type, (io.BytesIO, io.BufferedReader, Path)):
+            return True
+    # Union types do not work in issubclass, but it's ok
+    except TypeError:
+        pass
 
     return False

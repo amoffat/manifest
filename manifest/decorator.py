@@ -2,7 +2,8 @@ import inspect
 import json
 from functools import wraps
 from io import BytesIO
-from typing import Any, Callable
+from types import UnionType
+from typing import Any, Callable, get_origin
 
 from manifest import initialize, parser, serde, tmpl
 from manifest.llm.base import LLM
@@ -93,6 +94,17 @@ def ai(*decorator_args, **decorator_kwargs) -> Callable:
                         }
                     )
                     continue
+
+                # TODO handle checking union types
+                elif isinstance(arg_type, UnionType):
+                    pass
+
+                elif get_origin(arg_type) is not None:
+                    if type(arg_value) is not get_origin(arg_type):
+                        raise TypeError(
+                            f"Argument '{arg_name}' is of type {type(arg_value)}, "
+                            f"but should be of type {get_origin(arg_type)}"
+                        )
 
                 elif not isinstance(arg_value, arg_type):
                     raise TypeError(
