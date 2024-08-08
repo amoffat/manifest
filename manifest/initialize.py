@@ -121,7 +121,8 @@ def env_init() -> Callable[[], "LLM"]:
 
             return OpenAILLM(
                 api_key=openai_key,
-                model="gpt-4o",
+                # This is the modal that supports structured jsonschema output
+                model="gpt-4o-2024-08-06",
                 **kwargs,
             )
 

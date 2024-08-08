@@ -5,7 +5,7 @@ from io import BytesIO
 from types import UnionType
 from typing import Any, Callable, get_origin
 
-from manifest import initialize, parser, serde, tmpl
+from manifest import exc, initialize, parser, serde, tmpl
 from manifest.llm.base import LLM
 from manifest.types.service import Service
 from manifest.utils.args import get_args_dict
@@ -46,8 +46,6 @@ def ai(*decorator_args, **decorator_kwargs) -> Callable:
             return_type = ants["return"]
         except KeyError:
             raise ValueError(f"Function '{name}' is missing a return type annotation")
-        return_type_spec = serde.serialize(return_type)
-        return_type_spec_json = json.dumps(return_type_spec, indent=2)
 
         @wraps(fn)
         def inner(*exec_args, **exec_kwargs) -> Any:
@@ -59,6 +57,14 @@ def ai(*decorator_args, **decorator_kwargs) -> Callable:
             global llm
             if not llm:
                 llm = initialize.make_llm()
+
+            # We use the LLM object to serialize the return type to jsonschema,
+            # instead of using serde.serialize directly. This is because the LLM
+            # class may know about what the LLM service supports, for example,
+            # if the type needs to be wrapped in an envelope. We do the same
+            # with deserialization, later in the call.
+            return_type_spec = llm.serialize(return_type)
+            return_type_spec_json = json.dumps(return_type_spec, indent=2)
 
             service: Service = llm.service()
             call_tmpl = tmpl.load(f"{service.value}/call.j2")
@@ -150,26 +156,36 @@ def ai(*decorator_args, **decorator_kwargs) -> Callable:
                 resp = llm.call(
                     prompt=prompt,
                     system_msg=system_msg,
+                    response_schema=return_type_spec,
                     images=images,
                 )
 
-                data_spec = parser.parse_return_value(resp)
-                ret_val = serde.deserialize(
-                    schema=return_type_spec,
-                    data=data_spec,
-                    registry=type_registry,
-                )
-                return ret_val
+                try:
+                    data_spec = parser.parse_return_value(resp)
+                    ret_val = llm.deserialize(
+                        schema=return_type_spec,
+                        data=data_spec,
+                        registry=type_registry,
+                    )
+                    return ret_val
+                except Exception as e:
+                    raise exc.DeserializationError(
+                        f"Failed to deserialize LLM response: {e}"
+                    )
 
             tries = max(decorator_kwargs.get("retry", 2), 0) + 1
+            completed = False
             for _ in range(tries):
                 try:
                     ret_val = complete()
-                except:  # noqa
+                except exc.DeserializationError:
                     continue
                 else:
+                    completed = True
                     break
 
+            if not completed:
+                raise ValueError("Failed to complete the LLM prompt")
             return ret_val
 
         return inner

@@ -26,3 +26,7 @@ class NoApiKeyError(Exception):
     def __init__(self, service: "Service"):
         self.service = service
         super().__init__(f"No API key found for {service}")
+
+
+class DeserializationError(Exception):
+    """When the deserialization of an LLM response fails."""

@@ -1,3 +1,7 @@
+# 0.4.0 -
+
+- Support for OpenAI's jsonschema-conformant output
+
 # 0.3.0 - 8/5/24
 
 - Retry parameters on `@ai` decorator

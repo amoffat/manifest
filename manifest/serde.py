@@ -39,6 +39,7 @@ def serialize(data_type: Type | UnionType) -> dict:
             "type": "object",
             "properties": properties,
             "dataclassType": data_type.__name__,
+            "additionalProperties": False,
         }
         if required:
             schema["required"] = required
@@ -84,7 +85,7 @@ def deserialize(
     *,
     schema: dict,
     data: Any,
-    registry: dict[str, Any],
+    registry: dict[str, Type],
 ) -> Any:
     """
     Deserialize a JSON-friendly data structure into a dataclass instance.

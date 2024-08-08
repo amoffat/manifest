@@ -1,9 +1,14 @@
 import base64
+import json
+from dataclasses import make_dataclass
+from hashlib import sha1
 from io import BytesIO
-from typing import TYPE_CHECKING
+from types import UnionType
+from typing import TYPE_CHECKING, Any, Type
 
 import openai
 
+from manifest import serde
 from manifest.llm.base import LLM
 from manifest.types.service import Service
 
@@ -23,11 +28,40 @@ class OpenAILLM(LLM):
     def service() -> Service:
         return Service.OPENAI
 
+    @staticmethod
+    def serialize(return_type: Type | UnionType) -> Any:
+        """Serialize our return type to jsonschema, while also wrapping it in
+        an envelope because OpenAI does not support top-level simple types
+        (type: string), only objects."""
+        ResponseEnvelope = make_dataclass(
+            "ResponseEnvelope",
+            [("contents", return_type)],
+        )
+        return serde.serialize(ResponseEnvelope)
+
+    @staticmethod
+    def deserialize(
+        schema: dict,
+        data: Any,
+        registry: dict[str, Type],
+    ) -> Any:
+        """Deserialize our data from OpenAI into the expected return type,
+        while taking care to strip off the envelope beforehand."""
+        data = data["contents"]
+        schema = schema["properties"]["contents"]
+        obj = serde.deserialize(
+            schema=schema,
+            data=data,
+            registry=registry,
+        )
+        return obj
+
     def call(
         self,
         *,
         prompt: str,
         system_msg: str,
+        response_schema: dict[str, Any],
         images: list[BytesIO] | None = None,
     ) -> str:
 
@@ -63,11 +97,24 @@ class OpenAILLM(LLM):
             user_message,
         ]
 
+        # Not exactly sure what the response name is for on OpenAI's end, the
+        # jsonschema launch post seems to suggest it is for caching purposes, so
+        # we'll make it predictable at least.
+        response_name = sha1(
+            json.dumps(response_schema, sort_keys=True).encode("utf8")
+        ).hexdigest()
+
         completion = self.client.chat.completions.create(
             model=self.model,
             messages=messages,
-            # Somehow produces worse outcomes
-            # response_format={"type": "json_object"},
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": response_name,
+                    "strict": True,
+                    "schema": response_schema,
+                },
+            },
         )
 
         resp = completion.choices[0].message.content or ""
