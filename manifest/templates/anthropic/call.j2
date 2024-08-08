@@ -1,0 +1,49 @@
+Consider the following Python function definition with an incomplete implementation:
+
+<python-src>
+{{ fn }}
+</python-src>
+
+The function is being called with the following arguments:
+
+<arguments>
+    {%- for arg in args %}
+    <argument>
+        <name>{{ arg.name }}</name>
+        {%- if 'schema' in arg %}
+        <jsonschema>
+            {{ arg.schema | trim | indent(12) }}
+        </jsonschema>
+        {%- endif %}
+        <value>
+            {{ arg.value | trim | indent(12) }}
+        </value>
+        {%- if 'src' in arg %}
+        <python-src>
+            {{ arg.src | trim | indent(12) }}
+        </python-src>
+        {%- endif %}
+    </argument>
+    {%- endfor %}
+</arguments>
+
+The return value is defined by the following jsonschema:
+
+<return-type>
+    <jsonschema>
+        {{ return_type.schema | trim | indent(8)}}
+    </jsonschema>
+    {%- if return_type.src %}
+    <python-src>
+        {{ return_type.src | trim | indent(8) }}
+    </python-src>
+    {%- endif %}
+</return-type>
+
+Imagine calling the function with the above arguments and returning a value of the correct return type. Write your jsonschema-conformant response as json in the following XML tag:
+
+<return-value>
+    ...
+</return-value>
+
+The <return-value> tag should contain only the json-formatted return value of the function call, conforming to the jsonschema defined in the <return-type>'s <jsonschema> tag. Even if the return type is simple, like {"type": "string"}, the return value should be formatted as jsonschema value.
