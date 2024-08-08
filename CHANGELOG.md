@@ -1,4 +1,4 @@
-# 0.4.0 -
+# 0.4.0 - 8/8/24
 
 - Support for OpenAI's jsonschema-conformant output
 
