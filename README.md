@@ -12,8 +12,6 @@ pip install manifest
 
 ## Sentiment analysis
 
-Classify some text as positive or not.
-
 ```python
 from manifest import ai
 
@@ -26,8 +24,6 @@ assert is_optimistic("This is amazing!")
 
 ## Translation
 
-Translate text from one language to another.
-
 ```python
 from manifest import ai
 
@@ -39,8 +35,6 @@ assert translate("Hello", "fr") == "Bonjour"
 ```
 
 ## Image analysis
-
-Analyze images by passing in a Path to a file.
 
 ```python
 from pathlib import Path
@@ -55,8 +49,6 @@ print(breed_of_dog(image))
 ```
 
 ## Complex objects
-
-For advanced uses, you can return complex data structures.
 
 ```python
 from dataclasses import dataclass
