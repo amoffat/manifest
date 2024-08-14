@@ -1,14 +1,12 @@
 # Manifest ✨
 
-```
-man·i·fest [verb]
+Call an LLM by calling a function
 
-: to make something happen by imagining it and consciously thinking that it will happen
-```
+# Installation
 
-Want to use an LLM in your code without writing prompts or setting up an
-LLM client? Manifest makes it as easy as writing a function that describes what
-you want.
+```
+pip install manifest
+```
 
 # Examples
 
@@ -21,7 +19,7 @@ from manifest import ai
 
 @ai
 def is_optimistic(text: str) -> bool:
-    """ Determines if the text is optimistic"""
+    """Determines if the text is optimistic"""
 
 assert is_optimistic("This is amazing!")
 ```
@@ -35,7 +33,7 @@ from manifest import ai
 
 @ai
 def translate(english_text: str, target_lang: str) -> str:
-    """ Translates text from english into a target language """
+    """Translates text from english into a target language"""
 
 assert translate("Hello", "fr") == "Bonjour"
 ```
@@ -84,12 +82,6 @@ def similar_movie(movie: str, before_year: int | None=None) -> Movie:
 like_inception = similar_movie("Inception")
 print(like_inception)
 
-```
-
-# Installation
-
-```
-pip install manifest
 ```
 
 # How does it work?
