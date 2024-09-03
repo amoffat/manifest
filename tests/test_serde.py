@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import Optional
 
 import pytest
 
@@ -230,3 +231,23 @@ def test_complex() -> None:
     )
 
     assert actual == expected
+
+
+def test_optional() -> None:
+    schema = serialize(Optional[str])
+
+    actual = deserialize(
+        schema=schema,
+        data=None,
+        registry={},
+    )
+
+    assert actual is None
+
+    actual = deserialize(
+        schema=schema,
+        data="hello",
+        registry={},
+    )
+
+    assert actual == "hello"

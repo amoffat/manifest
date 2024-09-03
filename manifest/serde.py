@@ -1,7 +1,7 @@
 from dataclasses import fields, is_dataclass
 from enum import Enum
 from types import UnionType
-from typing import Any, Type, get_args, get_origin
+from typing import Any, Optional, Type, TypeVar, Union, get_args, get_origin
 
 import jsonschema
 
@@ -11,7 +11,14 @@ def is_primitive_type(obj_type: Any):
     return obj_type in (int, float, str, bool, type(None))
 
 
-def serialize(data_type: Type | UnionType) -> dict:
+T = TypeVar("T")
+
+
+def serialize(data_type: Type | UnionType | Optional[T]) -> dict:
+    """Serializes a data type into its jsonschema.
+
+    :param data_type: The type to serialize.
+    """
     if data_type is str:
         return {"type": "string"}
 
@@ -66,7 +73,8 @@ def serialize(data_type: Type | UnionType) -> dict:
             "additionalProperties": serialize(value_type),
         }
 
-    if isinstance(data_type, UnionType):
+    # This catches Optional as well
+    if get_origin(data_type) in (Union, UnionType):
         types = get_args(data_type)
         schemas = [serialize(t) for t in types]
         return {"anyOf": schemas}

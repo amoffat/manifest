@@ -1,3 +1,7 @@
+# 0.5.0 - 9/3/24
+
+- Handle `Optional` arguments
+
 # 0.4.0 - 8/8/24
 
 - Support for OpenAI's jsonschema-conformant output
