@@ -3,7 +3,7 @@ import json
 from functools import wraps
 from io import BytesIO
 from types import UnionType
-from typing import Any, Callable, get_origin
+from typing import Any, Callable, get_origin, get_type_hints
 
 from manifest import exc, initialize, parser, serde, tmpl
 from manifest.llm.base import LLM
@@ -32,7 +32,7 @@ def ai(*decorator_args, **decorator_kwargs) -> Callable:
         """Decorator that wraps a function and produces a function that, when
         executed, will call the LLM to provide the return value."""
 
-        ants = fn.__annotations__
+        ants = get_type_hints(fn)
         name = fn.__name__
         fn_src: str = inspect.getsource(fn)
 
