@@ -8,6 +8,12 @@ Call an LLM by calling a function
 pip install manifest
 ```
 
+Now make sure your OpenAI key is set:
+
+```
+export OPENAI_API_KEY="your_api_key_here"
+```
+
 # Examples
 
 ## Sentiment analysis
@@ -19,7 +25,7 @@ from manifest import ai
 def is_optimistic(text: str) -> bool:
     """Determines if the text is optimistic"""
 
-assert is_optimistic("This is amazing!")
+print(is_optimistic("This is amazing!")) # Prints True
 ```
 
 ## Translation
@@ -31,7 +37,7 @@ from manifest import ai
 def translate(english_text: str, target_lang: str) -> str:
     """Translates text from english into a target language"""
 
-assert translate("Hello", "fr") == "Bonjour"
+print(translate("Hello", "fr")) # Prints "Bonjour"
 ```
 
 ## Image analysis
@@ -45,7 +51,7 @@ def breed_of_dog(image: Path) -> str:
     """Determines the breed of dog from a photo"""
 
 image = Path("path/to/dog.jpg")
-print(breed_of_dog(image))
+print(breed_of_dog(image)) # Prints "German Shepherd" (or whatever)
 ```
 
 ## Complex objects
@@ -72,7 +78,7 @@ def similar_movie(movie: str, before_year: int | None=None) -> Movie:
     provided."""
 
 like_inception = similar_movie("Inception")
-print(like_inception)
+print(like_inception) # Prints a movie similar to inception
 
 ```
 
