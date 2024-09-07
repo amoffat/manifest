@@ -1,6 +1,10 @@
 # Manifest ✨
 
-Call an LLM by calling a function
+Call an LLM by calling a function.
+
+* Define a function name, arguments, return value, and docstring.
+* Call your function as normal, passing in your values.
+* For those values, an LLM will return a response that conforms to your return type.
 
 # Installation
 
