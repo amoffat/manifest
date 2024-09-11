@@ -8,3 +8,5 @@ __pycache__/
 /docs/build
 TODO.md
 /demo.py
+.stignore
+.pytest_cache/

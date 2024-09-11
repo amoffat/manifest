@@ -8,7 +8,7 @@ from manifest.serde import deserialize, serialize
 
 
 def test_simple() -> None:
-    schema = serialize(str)
+    schema = serialize(data_type=str, caller_ns=locals())
     expected = "hello"
 
     actual = deserialize(
@@ -21,7 +21,10 @@ def test_simple() -> None:
 
 
 def test_tuple() -> None:
-    schema = serialize(tuple[int, str, float])
+    schema = serialize(
+        data_type=tuple[int, str, float],
+        caller_ns=locals(),
+    )
     expected = (123, "hello", 3.14)
 
     actual = deserialize(
@@ -39,7 +42,7 @@ def test_enum() -> None:
         CUBE = 2
         CYLINDER = 3
 
-    schema = serialize(Shape)
+    schema = serialize(data_type=Shape, caller_ns=locals())
     data = "CUBE"
 
     actual = deserialize(
@@ -54,7 +57,7 @@ def test_enum() -> None:
 
 
 def test_dict() -> None:
-    schema = serialize(dict[str, int])
+    schema = serialize(data_type=dict[str, int], caller_ns=locals())
     expected = {
         "a": 1,
         "b": 2,
@@ -71,7 +74,7 @@ def test_dict() -> None:
 
 
 def test_none() -> None:
-    schema = serialize(type(None))
+    schema = serialize(data_type=type(None), caller_ns=locals())
     expected = None
 
     actual = deserialize(
@@ -85,7 +88,7 @@ def test_none() -> None:
 
 @pytest.mark.parametrize("expected", [None, 123, "hello"])
 def test_union(expected) -> None:
-    schema = serialize(str | int | None)
+    schema = serialize(data_type=str | int | None, caller_ns=locals())
 
     actual = deserialize(
         schema=schema,
@@ -97,7 +100,7 @@ def test_union(expected) -> None:
 
 
 def test_list() -> None:
-    schema = serialize(list[int])
+    schema = serialize(data_type=list[int], caller_ns=locals())
     expected = [1, 2, 3]
 
     actual = deserialize(
@@ -116,7 +119,7 @@ def test_list_of_dataclass() -> None:
         g: int
         b: int
 
-    schema = serialize(list[Color])
+    schema = serialize(data_type=list[Color], caller_ns=locals())
     data = [
         {
             "r": 125,
@@ -158,7 +161,7 @@ def test_dataclass() -> None:
         weight=0.16,
         cost=50,
     )
-    schema = serialize(expected.__class__)
+    schema = serialize(data_type=expected.__class__, caller_ns=locals())
 
     data = {
         "name": "apple",
@@ -205,7 +208,7 @@ def test_complex() -> None:
         color=Color(r=125, g=200, b=255),
         cost=499,
     )
-    schema = serialize(expected.__class__)
+    schema = serialize(data_type=expected.__class__, caller_ns=locals())
 
     data = {
         "name": "toaster",
@@ -234,7 +237,7 @@ def test_complex() -> None:
 
 
 def test_optional() -> None:
-    schema = serialize(Optional[str])
+    schema = serialize(data_type=Optional[str], caller_ns=locals())
 
     actual = deserialize(
         schema=schema,
@@ -251,3 +254,42 @@ def test_optional() -> None:
     )
 
     assert actual == "hello"
+
+
+def test_recursive() -> None:
+    @dataclass
+    class Node:
+        value: int
+        next: Optional["Node"]
+
+    schema = serialize(data_type=Node, caller_ns=locals())
+
+    data = {
+        "value": 1,
+        "next": {
+            "value": 2,
+            "next": {
+                "value": 3,
+                "next": None,
+            },
+        },
+    }
+
+    actual = deserialize(
+        schema=schema,
+        data=data,
+        registry={"Node": Node},
+    )
+
+    expected = Node(
+        value=1,
+        next=Node(
+            value=2,
+            next=Node(
+                value=3,
+                next=None,
+            ),
+        ),
+    )
+
+    assert actual == expected
