@@ -3,7 +3,7 @@ import json
 from functools import wraps
 from io import BytesIO
 from types import UnionType
-from typing import Any, Callable, get_origin, get_type_hints
+from typing import Any, Callable, cast, get_origin, get_type_hints
 
 from manifest import exc, initialize, parser, serde, tmpl
 from manifest.llm.base import LLM
@@ -31,6 +31,8 @@ def ai(*decorator_args, **decorator_kwargs) -> Callable:
     def outer(fn: Callable) -> Callable:
         """Decorator that wraps a function and produces a function that, when
         executed, will call the LLM to provide the return value."""
+        caller_frame = inspect.currentframe().f_back.f_back  # type: ignore
+        caller_ns = cast(dict[str, Any], caller_frame.f_globals)  # type: ignore
 
         ants = get_type_hints(fn)
         name = fn.__name__
@@ -40,7 +42,11 @@ def ai(*decorator_args, **decorator_kwargs) -> Callable:
         # restricted to hydrating only these types.
         type_registry: dict[str, Any] = {}
         for value in ants.values():
-            extract_type_registry(type_registry, value)
+            extract_type_registry(
+                registry=type_registry,
+                obj=value,
+                caller_ns=caller_ns,
+            )
 
         try:
             return_type = ants["return"]
@@ -63,7 +69,10 @@ def ai(*decorator_args, **decorator_kwargs) -> Callable:
             # class may know about what the LLM service supports, for example,
             # if the type needs to be wrapped in an envelope. We do the same
             # with deserialization, later in the call.
-            return_type_spec = llm.serialize(return_type)
+            return_type_spec = llm.serialize(
+                return_type=return_type,
+                caller_ns=caller_ns,
+            )
             return_type_spec_json = json.dumps(return_type_spec, indent=2)
 
             service: Service = llm.service()
@@ -129,7 +138,10 @@ def ai(*decorator_args, **decorator_kwargs) -> Callable:
                 args.append(
                     {
                         "name": arg_name,
-                        "schema": serde.serialize(arg_type),
+                        "schema": serde.serialize(
+                            data_type=arg_type,
+                            caller_ns=caller_ns,
+                        ),
                         "value": arg_value,
                         "src": src,
                     }

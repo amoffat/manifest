@@ -1,3 +1,7 @@
+# 0.6.0 - 9/10/24
+
+- Recursive types
+
 # 0.5.0 - 9/3/24
 
 - Handle `Optional` arguments

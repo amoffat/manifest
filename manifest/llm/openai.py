@@ -29,7 +29,11 @@ class OpenAILLM(LLM):
         return Service.OPENAI
 
     @staticmethod
-    def serialize(return_type: Type | UnionType) -> Any:
+    def serialize(
+        *,
+        return_type: Type | UnionType,
+        caller_ns: dict[str, Any],
+    ) -> Any:
         """Serialize our return type to jsonschema, while also wrapping it in
         an envelope because OpenAI does not support top-level simple types
         (type: string), only objects."""
@@ -37,7 +41,10 @@ class OpenAILLM(LLM):
             "ResponseEnvelope",
             [("contents", return_type)],
         )
-        return serde.serialize(ResponseEnvelope)
+        return serde.serialize(
+            data_type=ResponseEnvelope,
+            caller_ns=caller_ns,
+        )
 
     @staticmethod
     def deserialize(
@@ -48,7 +55,11 @@ class OpenAILLM(LLM):
         """Deserialize our data from OpenAI into the expected return type,
         while taking care to strip off the envelope beforehand."""
         data = data["contents"]
+        old_defs = schema.pop("$defs", None)
         schema = schema["properties"]["contents"]
+        if old_defs:
+            schema["$defs"] = old_defs
+
         obj = serde.deserialize(
             schema=schema,
             data=data,

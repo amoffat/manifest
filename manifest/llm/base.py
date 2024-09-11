@@ -28,7 +28,11 @@ class LLM(ABC):
 
     @staticmethod
     @abstractmethod
-    def serialize(return_type: Type | UnionType) -> Any:
+    def serialize(
+        *,
+        return_type: Type | UnionType,
+        caller_ns: dict[str, Any],
+    ) -> Any:
         """Serialize the return type of a function into jsonschema"""
 
     @staticmethod

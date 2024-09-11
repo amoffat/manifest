@@ -86,6 +86,79 @@ print(like_inception) # Prints a movie similar to inception
 
 ```
 
+## Recursive types
+
+It can handle self-referential types. For example, each `Character` has a `social_graph`, and each `SocialGraph` is composed of `Characters`.
+
+```python
+from dataclasses import dataclass
+from pprint import pprint
+
+from manifest import ai
+
+
+@dataclass
+class Character:
+    name: str
+    occupation: str
+    social_graph: "SocialGraph"
+
+
+@dataclass
+class SocialGraph:
+    friends: list[Character]
+    enemies: list[Character]
+
+
+@ai
+def get_character_social_graph(character_name: str) -> SocialGraph:
+    """For a given fictional character, return their social graph, resolving
+    each friend and enemy's social graph recursively."""
+
+
+graph = get_character_social_graph("Walter White")
+pprint(graph)
+
+```
+
+```
+SocialGraph(
+    friends=[
+        Character(
+            name='Jesse Pinkman',
+            occupation='Meth Manufacturer',
+            social_graph=SocialGraph(
+                friends=[Character(name='Walter White', occupation='Chemistry Teacher', social_graph=SocialGraph(friends=[], enemies=[]))],
+                enemies=[Character(name='Hank Schrader', occupation='DEA Agent', social_graph=SocialGraph(friends=[], enemies=[]))]
+            )
+        ),
+        Character(
+            name='Saul Goodman',
+            occupation='Lawyer',
+            social_graph=SocialGraph(friends=[Character(name='Walter White', occupation='Chemistry Teacher', social_graph=SocialGraph(friends=[], enemies=[]))], enemies=[])
+        )
+    ],
+    enemies=[
+        Character(
+            name='Hank Schrader',
+            occupation='DEA Agent',
+            social_graph=SocialGraph(
+                friends=[Character(name='Marie Schrader', occupation='Radiologic Technologist', social_graph=SocialGraph(friends=[], enemies=[]))],
+                enemies=[Character(name='Walter White', occupation='Meth Manufacturer', social_graph=SocialGraph(friends=[], enemies=[]))]
+            )
+        ),
+        Character(
+            name='Gus Fring',
+            occupation='Businessman',
+            social_graph=SocialGraph(
+                friends=[Character(name='Mike Ehrmantraut', occupation='Fixer', social_graph=SocialGraph(friends=[], enemies=[]))],
+                enemies=[Character(name='Walter White', occupation='Meth Manufacturer', social_graph=SocialGraph(friends=[], enemies=[]))]
+            )
+        )
+    ]
+)
+```
+
 # How does it work?
 
 Manifest relies heavily on runtime metadata, such as a function's name,
